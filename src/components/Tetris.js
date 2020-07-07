@@ -2,8 +2,9 @@ import React, { useState } from "react";
 
 import { createStage, checkCollision } from "../game-helpers";
 
-// Styled Components
-import { StyledTetrisWrapper, StyledTetris } from "./styles/StyledTetris";
+import styled from "styled-components";
+
+import bgImage from "../image/bg.png";
 
 // Custom Hooks
 import { useInterval } from "../hooks/useInterval";
@@ -51,7 +52,7 @@ const Tetris = () => {
     resetPlayer();
     setGameOver(false);
     setScore(0);
-    setRows(0);
+    setRows(10);
     setLevel(0);
   };
 
@@ -61,7 +62,7 @@ const Tetris = () => {
       setLevel((prev) => prev + 1);
       console.log(level);
       //also increase speed
-      setDropTime(1000 / (level + 1) + 200);
+      setDropTime(1000 / (level + 1) + 30);
     }
 
     if (!checkCollision(player, stage, { x: 0, y: 1 })) {
@@ -84,6 +85,7 @@ const Tetris = () => {
   };
 
   const move = ({ keyCode }) => {
+    console.log(keyCode);
     if (!gameOver) {
       if (keyCode === 37) {
         movePlayer(-1);
@@ -126,5 +128,27 @@ const Tetris = () => {
     </StyledTetrisWrapper>
   );
 };
-
 export default Tetris;
+
+const StyledTetrisWrapper = styled.div`
+  width: 100vw;
+  height: 100vh;
+  background: url(${bgImage}) #000;
+  background-size: cover;
+  overflow: hidden;
+`;
+
+export const StyledTetris = styled.div`
+  display: flex;
+  align-items: flex-start;
+  padding: 40px;
+  margin: 0 auto;
+  max-width: 900px;
+
+  aside {
+    width: 100%;
+    max-width: 200px;
+    display: block;
+    padding: 0 20px;
+  }
+`;

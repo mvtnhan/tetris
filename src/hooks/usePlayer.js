@@ -5,9 +5,9 @@ import { STAGE_WIDTH, checkCollision } from "../game-helpers";
 
 export const usePlayer = () => {
   const [player, setPlayer] = useState({
-    pos: { x: 0, y: 0 },
+    pos: { x: 0, y: 0 }, // vị trí
     tetromino: TETROMINOS[0].shape,
-    collided: false,
+    collided: false, //kiểm tra có va chạm ko
   });
 
   const rotate = (matrix, dir) => {
