@@ -1,10 +1,16 @@
+import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
-const StartButton = ({ callback }) => (
-  <StyledStartButton onClick={callback}>Start Game</StyledStartButton>
+const Button = ({ onclick, children }) => (
+  <StyledStartButton onClick={onclick}>{children}</StyledStartButton>
 );
-export default StartButton;
+export default Button;
+
+Button.propTypes = {
+  onclick: PropTypes.func.isRequired,
+  children: PropTypes.string.isRequired,
+};
 
 const StyledStartButton = styled.button`
   box-sizing: border-box;
@@ -16,7 +22,6 @@ const StyledStartButton = styled.button`
   border: none;
   color: white;
   background: #333;
-  font-family: Pixel, Arial, Helvetica, sans-serif;
   font-size: 1rem;
   outline: none;
   cursor: pointer;

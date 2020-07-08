@@ -1,28 +1,26 @@
-import React, { useState } from "react";
-
-import { createStage, checkCollision } from "../game-helpers";
-
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
-import bgImage from "../image/bg.png";
+import { createMainScreen, checkCollision } from "../game-helpers";
+import { keyCode } from "../constant";
 
 // Custom Hooks
 import { useInterval } from "../hooks/useInterval";
 import { usePlayer } from "../hooks/usePlayer";
-import { useStage } from "../hooks/useStage";
+import { useScreen } from "../hooks/useScreen";
 import { useGameStatus } from "../hooks/useGameStatus";
 
 // Components
-import Stage from "./Stage";
+import MainScreen from "./MainScreen";
 import Display from "./Display";
-import StartButton from "./StartButton";
+import StartButton from "./Button";
 
 const Tetris = () => {
   const [dropTime, setDropTime] = useState(null);
   const [gameOver, setGameOver] = useState(false);
 
   const [player, updatePlayerPos, resetPlayer, playerRotate] = usePlayer();
-  const [stage, setStage, rowsCleared] = useStage(player, resetPlayer);
+  const [screen, setScreen, rowsCleared] = useScreen(player, resetPlayer);
   const [score, setScore, rows, setRows, level, setLevel] = useGameStatus(
     rowsCleared
   );
@@ -30,29 +28,21 @@ const Tetris = () => {
   console.log("re-render");
 
   const movePlayer = (dir) => {
-    if (!checkCollision(player, stage, { x: dir, y: 0 })) {
+    //đổi player thành tên khác
+    if (!checkCollision(player, screen, { x: dir, y: 0 })) {
       updatePlayerPos({ x: dir, y: 0 });
-    }
-  };
-
-  const keyUp = ({ keyCode }) => {
-    if (!gameOver) {
-      if (keyCode === 40) {
-        console.log("interval on");
-        setDropTime(1000 / (level + 1));
-      }
     }
   };
 
   const startGame = () => {
     console.log("test");
     // Reset everything
-    setStage(createStage());
+    setScreen(createMainScreen());
     setDropTime(1000);
     resetPlayer();
     setGameOver(false);
     setScore(0);
-    setRows(10);
+    setRows(0);
     setLevel(0);
   };
 
@@ -62,13 +52,13 @@ const Tetris = () => {
       setLevel((prev) => prev + 1);
       console.log(level);
       //also increase speed
-      setDropTime(1000 / (level + 1) + 30);
+      setDropTime(1000 / (level + 1) + 500);
     }
 
-    if (!checkCollision(player, stage, { x: 0, y: 1 })) {
+    if (!checkCollision(player, screen, { x: 0, y: 1 })) {
       updatePlayerPos({ x: 0, y: 1, collided: false });
     } else {
-      // Game Over
+      // Game Over //check interval còn chạy hay ko
       if (player.pos.y < 1) {
         console.log("GAME OVER!!!");
         setGameOver(true);
@@ -84,59 +74,63 @@ const Tetris = () => {
     drop();
   };
 
-  const move = ({ keyCode }) => {
-    console.log(keyCode);
+  const move = (e) => {
     if (!gameOver) {
-      if (keyCode === 37) {
+      if (e.keyCode === keyCode.LEFT) {
         movePlayer(-1);
-      } else if (keyCode === 39) {
+      } else if (e.keyCode === keyCode.RIGHT) {
         movePlayer(1);
-      } else if (keyCode === 40) {
+      } else if (e.keyCode === keyCode.DOWN) {
         dropPlayer();
-      } else if (keyCode === 38) {
-        playerRotate(stage, 1);
+      } else if (e.keyCode === keyCode.UP) {
+        playerRotate(screen, 1);
       }
     }
   };
+
+  const handkeyup = (e) => {
+    if (!gameOver) {
+      if (e.keyCode === keyCode.DOWN) {
+        console.log("interval on");
+        setDropTime(1000 / (level + 1));
+      }
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keypress", move);
+    return () => {
+      document.removeEventListener("keypress", move);
+    };
+  }, []);
 
   useInterval(() => {
     drop();
   }, dropTime);
 
   return (
-    <StyledTetrisWrapper
+    <StyledTetris
       role="button"
       tabIndex="0"
       onKeyDown={(e) => move(e)}
-      onKeyUp={keyUp}
+      onKeyUp={handkeyup}
     >
-      <StyledTetris>
-        <Stage stage={stage} />
-        <aside>
-          {gameOver ? (
-            <Display gameOver={gameOver} text="Game Over" />
-          ) : (
-            <div>
-              <Display text={`Score: ${score}`} />
-              <Display text={`Rows: ${rows}`} />
-              <Display text={`Level: ${level}`} />
-            </div>
-          )}
-          <StartButton callback={startGame} />
-        </aside>
-      </StyledTetris>
-    </StyledTetrisWrapper>
+      <MainScreen screen={screen} opacity={gameOver} />
+      <div className="GameOver">
+        {gameOver ? <Display gameOver={gameOver} text="Game Over" /> : null}
+      </div>
+
+      <aside>
+        <Display text={`Score: ${score}`} />
+        <Display text={`Rows: ${rows}`} />
+        <Display text={`Level: ${level}`} />
+
+        <StartButton onclick={startGame} children="Start Game" />
+      </aside>
+    </StyledTetris>
   );
 };
 export default Tetris;
-
-const StyledTetrisWrapper = styled.div`
-  width: 100vw;
-  height: 100vh;
-  background: url(${bgImage}) #000;
-  background-size: cover;
-  overflow: hidden;
-`;
 
 export const StyledTetris = styled.div`
   display: flex;
@@ -144,6 +138,15 @@ export const StyledTetris = styled.div`
   padding: 40px;
   margin: 0 auto;
   max-width: 900px;
+  border: none;
+
+  :focus {
+    outline: 0;
+  }
+
+  .GameOver {
+    position: absolute;
+  }
 
   aside {
     width: 100%;

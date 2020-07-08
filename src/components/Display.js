@@ -1,3 +1,4 @@
+import PropTypes from "prop-types";
 import React from "react";
 import styled from "styled-components";
 
@@ -5,6 +6,11 @@ const Display = ({ gameOver, text }) => (
   <StyledDisplay gameOver={gameOver}>{text}</StyledDisplay>
 );
 export default Display;
+
+Display.propTypes = {
+  gameOver: PropTypes.bool,
+  text: PropTypes.string.isRequired,
+};
 
 const StyledDisplay = styled.div`
   box-sizing: border-box;
@@ -18,6 +24,5 @@ const StyledDisplay = styled.div`
   border-radius: 20px;
   color: ${(props) => (props.gameOver ? "red" : "#999")};
   background: #000;
-  font-family: Pixel, Arial, Helvetica, sans-serif;
   font-size: 0.8rem;
 `;
