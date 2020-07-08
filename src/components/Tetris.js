@@ -28,7 +28,6 @@ const Tetris = () => {
   console.log("re-render");
 
   const movePlayer = (dir) => {
-    //đổi player thành tên khác
     if (!checkCollision(player, screen, { x: dir, y: 0 })) {
       updatePlayerPos({ x: dir, y: 0 });
     }
@@ -58,7 +57,7 @@ const Tetris = () => {
     if (!checkCollision(player, screen, { x: 0, y: 1 })) {
       updatePlayerPos({ x: 0, y: 1, collided: false });
     } else {
-      // Game Over //check interval còn chạy hay ko
+      // Game Over
       if (player.pos.y < 1) {
         console.log("GAME OVER!!!");
         setGameOver(true);
@@ -75,16 +74,17 @@ const Tetris = () => {
   };
 
   const move = (e) => {
-    if (!gameOver) {
-      if (e.keyCode === keyCode.LEFT) {
-        movePlayer(-1);
-      } else if (e.keyCode === keyCode.RIGHT) {
-        movePlayer(1);
-      } else if (e.keyCode === keyCode.DOWN) {
-        dropPlayer();
-      } else if (e.keyCode === keyCode.UP) {
-        playerRotate(screen, 1);
-      }
+    if (gameOver) {
+      return null;
+    }
+    if (e.keyCode === keyCode.LEFT) {
+      movePlayer(-1);
+    } else if (e.keyCode === keyCode.RIGHT) {
+      movePlayer(1);
+    } else if (e.keyCode === keyCode.DOWN) {
+      dropPlayer();
+    } else if (e.keyCode === keyCode.UP) {
+      playerRotate(screen, 1);
     }
   };
 
@@ -101,7 +101,7 @@ const Tetris = () => {
     document.addEventListener("keypress", move);
     return () => {
       document.removeEventListener("keypress", move);
-    };
+    }; // eslint-disable-next-line
   }, []);
 
   useInterval(() => {
@@ -115,10 +115,11 @@ const Tetris = () => {
       onKeyDown={(e) => move(e)}
       onKeyUp={handkeyup}
     >
-      <MainScreen screen={screen} opacity={gameOver} />
-      <div className="GameOver">
-        {gameOver ? <Display gameOver={gameOver} text="Game Over" /> : null}
-      </div>
+      {gameOver ? (
+        <MainScreen screen={screen} gameOver={gameOver} />
+      ) : (
+        <MainScreen screen={screen} />
+      )}
 
       <aside>
         <Display text={`Score: ${score}`} />
@@ -142,10 +143,6 @@ export const StyledTetris = styled.div`
 
   :focus {
     outline: 0;
-  }
-
-  .GameOver {
-    position: absolute;
   }
 
   aside {

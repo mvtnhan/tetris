@@ -13,6 +13,7 @@ Display.propTypes = {
 };
 
 const StyledDisplay = styled.div`
+  text-align: center;
   box-sizing: border-box;
   display: flex;
   align-items: center;

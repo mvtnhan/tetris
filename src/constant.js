@@ -9,5 +9,3 @@ export const MainScreen = {
   WIDTH: 12,
   HEIGHT: 20,
 };
-
-export const linePoints = [40, 100, 300, 1200];

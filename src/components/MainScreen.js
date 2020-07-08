@@ -3,10 +3,21 @@ import React from "react";
 import styled from "styled-components";
 
 import Cell from "./Cell";
+import Display from "./Display";
 
-const MainScreen = ({ screen }) => (
-  <StyledMainScreen width={screen[0].length} height={screen.length}>
+const MainScreen = ({ screen, gameOver }) => (
+  <StyledMainScreen
+    width={screen[0].length}
+    height={screen.length}
+    gameOver={gameOver}
+  >
     {screen.map((row) => row.map((cell, x) => <Cell key={x} type={cell[0]} />))}
+
+    {gameOver ? (
+      <div className="GameOver">
+        <Display gameOver={gameOver} text="Game Over" />
+      </div>
+    ) : null}
   </StyledMainScreen>
 );
 export default MainScreen;
@@ -16,6 +27,7 @@ MainScreen.propTypes = {
 };
 
 const StyledMainScreen = styled.div`
+  position: relative;
   display: grid;
   grid-template-rows: repeat(
     ${(props) => props.height},
@@ -28,4 +40,12 @@ const StyledMainScreen = styled.div`
   max-width: 25vw;
   width: 100%;
   background: #111;
+  opacity: ${(props) => (props.gameOver ? 0.6 : 1)};
+
+  .GameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 `;
