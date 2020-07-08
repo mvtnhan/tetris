@@ -31,13 +31,14 @@ export const useScreen = (player, resetPlayer) => {
       player.tetromino.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            newScreen[y + player.pos.y][x + player.pos.x] = [
+            newScreen[y + player.position.y][x + player.position.x] = [
               value,
               `${player.collided ? "merged" : "clear"}`,
             ];
           }
         });
       });
+
       // Then check if we collided
       if (player.collided) {
         resetPlayer();

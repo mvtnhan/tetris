@@ -1,6 +1,8 @@
 import React from "react";
-import Tetris from "./components/Tetris";
 import styled from "styled-components";
+
+import Tetris from "./components/Tetris";
+
 import bgImage from "./image/bg.png";
 
 const App = () => (

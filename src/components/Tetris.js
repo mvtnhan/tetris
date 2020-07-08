@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 
-import { createMainScreen, checkCollision } from "../game-helpers";
+import { checkCollision, createMainScreen } from "../game-helpers";
 import { keyCode } from "../constant";
+import { useGameStatus } from "../hooks/useGameStatus";
 
 // Custom Hooks
 import { useInterval } from "../hooks/useInterval";
 import { usePlayer } from "../hooks/usePlayer";
 import { useScreen } from "../hooks/useScreen";
-import { useGameStatus } from "../hooks/useGameStatus";
+import StartButton from "./Button";
+import Display from "./Display";
 
 // Components
 import MainScreen from "./MainScreen";
-import Display from "./Display";
-import StartButton from "./Button";
 
 const Tetris = () => {
   const [dropTime, setDropTime] = useState(null);
   const [gameOver, setGameOver] = useState(false);
 
-  const [player, updatePlayerPos, resetPlayer, playerRotate] = usePlayer();
+  const [player, updatePlayerPosition, resetPlayer, playerRotate] = usePlayer();
   const [screen, setScreen, rowsCleared] = useScreen(player, resetPlayer);
   const [score, setScore, rows, setRows, level, setLevel] = useGameStatus(
     rowsCleared
@@ -27,11 +27,14 @@ const Tetris = () => {
 
   console.log("re-render");
 
-  const movePlayer = (dir) => {
-    if (!checkCollision(player, screen, { x: dir, y: 0 })) {
-      updatePlayerPos({ x: dir, y: 0 });
-    }
-  };
+  const movePlayer = useCallback(
+    (direction) => {
+      if (!checkCollision(player, screen, { x: direction, y: 0 })) {
+        updatePlayerPosition({ x: direction, y: 0 });
+      }
+    },
+    [player, screen, updatePlayerPosition]
+  );
 
   const startGame = () => {
     console.log("test");
@@ -45,82 +48,56 @@ const Tetris = () => {
     setLevel(0);
   };
 
-  const drop = () => {
+  const drop = useCallback(() => {
     //Increase level when player has cleared 10 rows
     if (rows > (level + 1) * 10) {
       setLevel((prev) => prev + 1);
       console.log(level);
       //also increase speed
-      setDropTime(1000 / (level + 1) + 500);
+      setDropTime(1000 / (level + 1) + 50);
     }
 
     if (!checkCollision(player, screen, { x: 0, y: 1 })) {
-      updatePlayerPos({ x: 0, y: 1, collided: false });
+      updatePlayerPosition({ x: 0, y: 1, collided: false });
     } else {
       // Game Over
-      if (player.pos.y < 1) {
+      if (player.position.y < 1) {
         console.log("GAME OVER!!!");
         setGameOver(true);
         setDropTime(null);
       }
-      updatePlayerPos({ x: 0, y: 0, collided: true });
+      updatePlayerPosition({ x: 0, y: 0, collided: true });
     }
-  };
+  }, [level, setLevel, rows, screen, player, updatePlayerPosition]);
 
-  const dropPlayer = () => {
-    console.log("interval off");
-    setDropTime(null);
-    drop();
-  };
-
-  const move = (e) => {
-    if (gameOver) {
-      return null;
-    }
-    if (e.keyCode === keyCode.LEFT) {
-      movePlayer(-1);
-    } else if (e.keyCode === keyCode.RIGHT) {
-      movePlayer(1);
-    } else if (e.keyCode === keyCode.DOWN) {
-      dropPlayer();
-    } else if (e.keyCode === keyCode.UP) {
-      playerRotate(screen, 1);
-    }
-  };
-
-  const handkeyup = (e) => {
-    if (!gameOver) {
-      if (e.keyCode === keyCode.DOWN) {
-        console.log("interval on");
-        setDropTime(1000 / (level + 1));
+  const move = useCallback(
+    (e) => {
+      if (!gameOver) {
+        if (e.keyCode === keyCode.LEFT) {
+          movePlayer(-1);
+        } else if (e.keyCode === keyCode.RIGHT) {
+          movePlayer(1);
+        } else if (e.keyCode === keyCode.DOWN) {
+          drop();
+        } else if (e.keyCode === keyCode.UP) {
+          playerRotate(screen, 1);
+        }
       }
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener("keypress", move);
-    return () => {
-      document.removeEventListener("keypress", move);
-    }; // eslint-disable-next-line
-  }, []);
+    },
+    [movePlayer, drop, playerRotate, screen, gameOver]
+  );
 
   useInterval(() => {
     drop();
   }, dropTime);
 
   return (
-    <StyledTetris
-      role="button"
-      tabIndex="0"
-      onKeyDown={(e) => move(e)}
-      onKeyUp={handkeyup}
-    >
+    <StyledTetris role="button" tabIndex="0" onKeyDown={(e) => move(e)}>
       {gameOver ? (
         <MainScreen screen={screen} gameOver={gameOver} />
       ) : (
         <MainScreen screen={screen} />
       )}
-
       <aside>
         <Display text={`Score: ${score}`} />
         <Display text={`Rows: ${rows}`} />
