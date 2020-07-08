@@ -25,8 +25,6 @@ const Tetris = () => {
     rowsCleared
   );
 
-  console.log("re-render");
-
   const movePlayer = useCallback(
     (direction) => {
       if (!checkCollision(player, screen, { x: direction, y: 0 })) {
@@ -37,7 +35,6 @@ const Tetris = () => {
   );
 
   const startGame = () => {
-    console.log("test");
     // Reset everything
     setScreen(createMainScreen());
     setDropTime(1000);
@@ -52,7 +49,6 @@ const Tetris = () => {
     //Increase level when player has cleared 10 rows
     if (rows > (level + 1) * 10) {
       setLevel((prev) => prev + 1);
-      console.log(level);
       //also increase speed
       setDropTime(1000 / (level + 1) + 50);
     }
@@ -62,7 +58,6 @@ const Tetris = () => {
     } else {
       // Game Over
       if (player.position.y < 1) {
-        console.log("GAME OVER!!!");
         setGameOver(true);
         setDropTime(null);
       }
