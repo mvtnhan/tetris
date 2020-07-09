@@ -10,7 +10,7 @@ const GlobalStyle = createGlobalStyle`
 ${normalize}
   body {
     margin: 0;
-    font-family: "Pixel LCD7", Arial, Helvetica, sans-serif;
+    font-family: "VT323", Arial, Helvetica, sans-serif;
   }
 
 `;

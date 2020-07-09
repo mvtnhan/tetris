@@ -22,7 +22,7 @@ const StyledStartButton = styled.button`
   border: none;
   color: white;
   background: #333;
-  font-size: 1rem;
+  font-size: 2rem;
   outline: none;
   cursor: pointer;
 `;

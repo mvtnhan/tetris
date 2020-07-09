@@ -25,5 +25,5 @@ const StyledDisplay = styled.div`
   border-radius: 20px;
   color: ${(props) => (props.gameOver ? "red" : "#999")};
   background: #000;
-  font-size: 0.8rem;
+  font-size: 1.6rem;
 `;
